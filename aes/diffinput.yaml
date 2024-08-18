@@ -1,0 +1,18 @@
+# Example input file for diff
+---
+nrounds : 2
+mode : 0
+is_related_key : 0
+sweight : 0
+endweight : 128
+timelimit : 3600
+numberoftrails : 1
+variant : 1
+fixedVariables:
+
+# - x_0 : "00002c00000000af3f000000006b0000"
+# - s_2 : "00000000000000000000000000000200"
+- x_1 : "0032000000ab00000066000000980000"
+
+
+

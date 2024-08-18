@@ -1,0 +1,153 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aes}[2022/10/06 Utils for illustrating AES]
+
+%%% PREREQUISITES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{tikz}
+\RequirePackage{xspace}
+\RequirePackage{tugcolors}
+\usetikzlibrary{calc,cipher}
+\usetikzlibrary{patterns}
+
+%%% GENERAL CRYPTO UTILS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\providecommand{\cipher}[1]{\textsf{#1}}
+
+\providecommand{\SB}{\cipher{SB}\xspace}
+\providecommand{\AK}{\cipher{AK}\xspace}
+\providecommand{\SR}{\cipher{SR}\xspace}
+\providecommand{\MC}{\cipher{MC}\xspace}
+
+\providecommand{\SubBytes}{\cipher{SubBytes}\xspace}
+\providecommand{\AddRoundKey}{\cipher{AddRoundKey}\xspace}
+\providecommand{\ShiftRows}{\cipher{ShiftRows}\xspace}
+\providecommand{\MixColumns}{\cipher{MixColumns}\xspace}
+
+\providecommand{\TFill}[2][tugviolet]{\fill[#1] (#2) ++(-.5,.5) -- +(0,-1) -- +(1,0) -- cycle;}
+\providecommand{\BFill}[2][tuggreen!70!green]{\fill[#1] (#2) ++(.5,-.5) -- +(0,1) -- +(-1,0) -- cycle;}
+
+%%% COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\colorlet{diff}{blue!50}
+\colorlet{free}{green!30}
+\colorlet{oper}{white}
+\colorlet{upperactive}{tugred}
+\colorlet{loweractive}{tugblue}
+
+\providecommand{\ActCell}[2]{%
+  \FillCell{#1} % optional parameter for fill options
+  \Cell{#1}{\color{white}#2} % write content
+}
+
+\providecommand{\HighlightTweakey}[1][]{\draw[line width=1.5pt,#1] (0,0) rectangle +(4,-2);}
+
+%%% UTILS & OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzset{
+  state/.style={inner sep=-.5pt},
+  stateopts/.style={scale=.3},
+  fillopts/.style={diff},
+  markopts/.style={marc,ultra thick},
+  cellopts/.style={font=\footnotesize},
+  box/.append style={fill=oper},
+  >=latex
+}
+\providecommand{\stateScale}{.3} % TODO derive!
+
+%%% AES ROUND FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\AesInit}{
+  \coordinate (init); % beginning of current line
+  \AesInitCoordinates
+}
+
+\newcommand{\AesInitCoordinates}{
+  % called by AesInit and AesNewLine to initialize state coordinates based on (init)
+  \draw (init) coordinate (here); % current x-coordinate of state
+  \draw (here)  node (S) {}
+       +(0,.6)  coordinate (lbl)
+      ++(0,1)   node (T) {};
+  \draw (S.east) coordinate (Shere)
+        (T.east) coordinate (There);
+  \draw (here) +(.75,0) coordinate(here);
+  \foreach \r/\offset in {0/.45,1/.15,2/-.15,3/-.45} {
+    \draw (here) + (0,\offset) coordinate (S\r);
+  }
+  \draw (S) +(-.25,-.9) coordinate (Shook); % for \AesNewLine
+}
+
+\newcommand{\AesNewLine}[2][]{
+  % #1 = round number (optional)
+  % #2 = state after mixcols (repeated at beginning of next line)
+  % draw and connect final state 
+  \draw (Shere.east) coordinate (Sprev);
+  \draw (S-|here) node[state] (Shere) {\State{#2}};
+  \draw (Shere|-lbl) node[above,inner sep=1pt] {$X_{#1}$}; % adapt label here
+  \draw (init) +(0,-2.0) coordinate (init);
+  \draw (Shere.east) coordinate (Send);
+  \draw (Shook) coordinate (Thook);
+  \AesInitCoordinates
+  \draw[->,rounded corners=2pt] (Send) -- +(.25,0) |- (Thook) |- (init) -- +(.15,0);
+}
+
+\newcommand{\AesFin}[2][]{
+  % #1 = round number (optional)
+  % #2 = final state
+  \draw (Shere.east) coordinate (Sprev);
+  \draw (S-|here) node[state] (Shere) {\State{#2}};
+  \draw (Shere|-lbl) node[above,inner sep=1pt] {$X_{#1}$}; % adapt label here
+}
+
+\newcommand{\AesStep}[3]{
+  % #1 = function
+  % #2 = state content
+  % #3 = label
+  \draw (here) +(2.0,0) coordinate(here);
+  \draw (Shere.east) coordinate (Sprev);
+  \draw (S-|here) node[state] (Shere) {\State{#2}};
+  \draw (Shere|-lbl) node[above,inner sep=1pt] {#3};
+  \draw[->] (Sprev) -- node[above] {#1} (Shere.west|-Sprev);
+  % \draw (Shere) ++(1,0) node[box,minimum height=1.2cm,minimum width=.42cm,font=\scriptsize,align=center] (Shere) {\SC\\\AC};
+}
+
+\newcommand{\AesRound}[6][]{
+  % a modified AES round that *starts* with addroundkey
+  % #1 = round number (optional)
+  % #2 = state input
+  % #3 = round key
+  % #4 = state after AddRoundKey
+  % #5 = state after SubBytes
+  % #6 = state after ShiftRows
+  %      state after MixColumns is part of the next round or AesFin
+  %
+  % round input:
+  \draw (Shere.east) coordinate (Sprev);
+  \draw (S-|here) node[state] (Shere) {\State{#2}};
+  \draw (Shere|-lbl) node[above,inner sep=1pt] {$X_{#1}$};
+
+
+  % AddRoundTweakey:
+  \draw (Shere.east) coordinate (Sprev);
+  \draw (here.east) ++(1.5,1.5*\stateScale) coordinate[xor] (Txor);
+  \draw (Sprev) ++(1.5+\stateScale,0) coordinate (Tfin);
+  \draw[->,rounded corners=1pt] (Sprev) -- +(.5*\stateScale,0) |- (Txor);
+  \draw[->,rounded corners=1pt] (Txor) -- +(2.5*\stateScale,0) |- (Tfin);
+  \draw (Txor|-lbl) node[above,inner sep=1pt] {$K_{#1}$}; % adapt label here
+  \draw (Txor.east) coordinate (Shere);
+  \draw (There.east) coordinate (Tprev);
+  \draw (Txor.center) ++(0,-2.5*\stateScale) node[state] (There) {\State{#3}};
+  \draw (There.north) -- (Txor);
+  \draw (here) +(3,0) coordinate(here);
+
+  \draw (Shere.east) coordinate (Sprev);
+  \draw (S-|here) node[state] (Shere) {\State{#4}};
+  \draw (Shere|-lbl) node[above,inner sep=1pt] {$Y_{#1}$}; % adapt label here
+
+  % SubCells, ShiftRows:
+  \AesStep{\SB}{#5}{$Z_{#1}$} % adapt label here
+  \AesStep{\SR}{#6}{$W_{#1}$} % adapt label here
+
+  \draw (here) +(2,0) coordinate(here);
+  \draw[->] (Shere.east) -- node[above] {\MC} +(.8,0);
+  
+  % adapt hook depth
+  \draw (S) +(-.25,-1) coordinate (Shook); % for \AesNewLine
+}
+
+\endinput

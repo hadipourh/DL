@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "boomerang.h": "c",
+        "time.h": "c",
+        "warp.h": "c"
+    }
+}

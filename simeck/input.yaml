@@ -1,0 +1,19 @@
+# Example input file for diff
+nrounds: 5
+blocksize: 64
+mode: 2
+sweight: 0
+endweight: 128
+timelimit: 3600
+numberoftrails: 1
+fixedVariables:
+
+ 
+
+- xl_0 : "00000010"
+- xr_0 : "00000020"
+
+
+
+- xl_5 : "00000080"
+- xr_5 : "00000050"

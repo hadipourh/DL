@@ -1,0 +1,17 @@
+# Example input file for diff
+---
+nrounds: 1
+mode: 0
+sweight: 0
+endweight: 128
+timelimit: 18000
+numberoftrails: 100
+fixedVariables:
+
+# - x_0 : "00770000000000000000000000000000"
+- x_0 : "000000000000000000e2000000000000"
+
+# Some examples showing how to set the I/O differences
+# Pr  = 2^(-4.68)
+# - x_0 : "00000000000000000000000000000097"
+# - x_2 : "00000000000000974414500a00000000"

@@ -1,0 +1,158 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{simeck}[2024/01/17 Utils for illustrating the SIMON cipher]
+
+%%% PREREQUISITES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{tikz}
+\RequirePackage{tugcolors}
+\RequirePackage{xspace}
+\usetikzlibrary{calc,cipher}
+
+%%% GENERAL CRYPTO UTILS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\providecommand{\cipher}[1]{\textsf{#1}}
+
+%%% SIMON UTILS & OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\SIMON}[1][]{\if\relax\detokenize{#1}\relax\cipher{SIMON}\else\mbox{\cipher{SIMON}-#1}\fi\xspace}
+
+\tikzset{%
+  simeckstateopts/.style={scale=.15},
+  simecklabelstyle/.style={font=\scriptsize,inner sep=1pt,above},
+}
+
+\newif\ifsimeckshowkey\simeckshowkeytrue
+\newif\ifsimeckcompact\simeckcompacttrue
+
+% Define your custom colors
+\colorlet{zero}{white}
+\colorlet{one}{tugred}
+\colorlet{upper}{tugred}
+\colorlet{upperfix}{tugyellow}
+\colorlet{upperunknown}{upper}
+\colorlet{lower}{tugblue}
+\colorlet{lowerfix}{tugmid}
+\colorlet{lowerunknown}{lower}
+\colorlet{common}{tuggreen}
+
+% Macros to fill the upper and lower triangles of a cell
+\providecommand{\TFill}[2][tugviolet]{\fill[#1] (#2) ++(-.5,.5) -- +(0,-1) -- +(1,0) -- cycle;}
+\providecommand{\BFill}[2][tuggreen!70!green]{\fill[#1] (#2) ++(.5,-.5) -- +(0,1) -- +(-1,0) -- cycle;}
+
+
+%%% SIMON ROUND FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\SimeckHalfState}[1]{%
+  \tikz[simeckstateopts]{
+    \foreach \s in {0,...,\lastB} { \draw (\s+.5,-.5) coordinate (s\s); }
+    \draw (8,-.5) coordinate (label);
+    #1
+    \draw (0,0) rectangle (\sizeB,-1);
+    \foreach \x in {1,...,\lastB} {
+      \draw[raster] (\x,0) -- ++(0,-1);
+    }
+  }%
+}
+
+
+\newcommand{\SimeckInit}[1][32]{
+  \pgfmathsetmacro{\sizeB}{int(div(#1,2))}
+  \pgfmathsetmacro{\lastB}{int(div(#1,2)-1)}
+  \pgfmathsetmacro{\bitdim}{0.15}
+  \pgfmathsetmacro{\rotB}{5}
+  \pgfmathsetmacro{\rotA}{0}
+  \pgfmathsetmacro{\rotC}{1}
+
+  \pgfmathsetmacro{\halfword}{div(\sizeB,2)*\bitdim}
+  \ifsimeckcompact
+  \pgfmathsetmacro{\wordvsep}{.3}
+  \tikzset{simecklabelstyle/.append style={below}}
+  \else
+  \pgfmathsetmacro{\wordvsep}{.45}
+  \fi
+  \coordinate (here);
+  \draw (0,0)             coordinate (L) coordinate (Lhere)
+      ++(.9,0)            coordinate (LL) % LL.center = LM.west
+      ++(\halfword,0)     coordinate (LM)
+      ++(\halfword+.45,0) coordinate (MM)
+      ++(\halfword+.45,0) coordinate (RM)
+      ++(\halfword,0)     coordinate (RR) % RR.center = RM.east
+      ++(.9,0)            coordinate (R) coordinate (Rhere);
+}
+
+
+
+\newcommand{\SimeckRound}[9]{
+  \pgfmathsetmacro{\inputidx}{int(#1-1)}
+  \draw (LL|-here) node[state,label=right:$L_{\inputidx}$] (LLhere) {\SimeckHalfState{#2}};
+  \draw (RR|-here) node[state, label=left:$R_{\inputidx}$] (RRhere) {\SimeckHalfState{#3}};
+  \draw (L|-here) ++(0,-\wordvsep) coordinate[tee] (t1)
+                  ++(0,-\wordvsep) coordinate[tee] (t2)
+                  ++(0,-\wordvsep) coordinate[tee] (t3)
+                  ++(0,-.3)        coordinate      (swapini)
+                  ++(0,-\wordvsep) coordinate      (swapfin)
+                  ++(0,-.3)        coordinate      (here)
+                  ++(0,.5*\bitdim) coordinate      (end);
+  \ifsimeckshowkey
+  \draw (R|-t1)             coordinate[xor] (x1); % key
+  \fi
+  \draw (MM|-t2)            coordinate[andalt] (a1);
+  \draw (MM|-t3)            coordinate[xor] (x2); % mid
+  \draw (R|-t3)             coordinate[xor] (x3); % feistel
+  \draw (LM|-t1)  node[state] (LM1) {\SimeckHalfState{#4}};
+  \draw (LM|-t2)  node[state] (LM2) {\SimeckHalfState{#5}};
+  \draw (LM|-t3)  node[state] (LM3) {\SimeckHalfState{#6}};
+  \ifsimeckshowkey
+  \draw (RM|-t1)  node[state] (RM1) {\SimeckHalfState{#7}};
+  \fi
+  \draw (RM|-t2)  node[state] (RM2) {\SimeckHalfState{#8}};
+  \draw (RM|-t3)  node[state] (RM3) {\SimeckHalfState{#9}};
+  \draw (t1) --  (LM1);
+  \draw (t2) -- node[below,simecklabelstyle] {$\lll \rotB$} (LM2);
+  \draw (t3) -- node[below,simecklabelstyle] {$\lll \rotC$} (LM3);
+  \begin{scope}[rounded corners=2pt,->]
+    \ifsimeckshowkey
+    \draw (RM1) -- node[below,simecklabelstyle] {$K_{#1}$} (x1); % TODO off-by-one: should be K_{#1-1} according to the spec
+    \fi
+    \draw (LM1) -| (a1);
+    \draw (LM2) -- (a1);
+    \draw[\ifsimeckcompact-\fi] (a1)  -- (x2);
+    \draw (LM3) -- (x2);
+    \draw (x2)  -- (RM3);
+    \draw (RM3) -- (x3);
+    \ifsimeckshowkey
+    \draw[\ifsimeckcompact-\fi] (Rhere|-RRhere.south) -- (x1);
+    \draw (x1) -- (x3);
+    \else
+    \draw (Rhere|-RRhere.south) -- (x3);
+    \fi
+    \draw (Lhere|-LLhere.south) -- (L|-swapini) -- (R|-swapfin) -- (R|-end) coordinate (Rhere);
+    \draw (x3) -- (R|-swapini) -- (L|-swapfin) -- (L|-end) coordinate (Lhere);
+  \end{scope}
+}
+
+
+\newcommand{\SimeckRoundShort}[3]{
+  \pgfmathsetmacro{\inputidx}{int(#1-1)}
+  \draw (LL|-here) node[state,label=right:$L_{\inputidx}$] (LLhere) {\SimeckHalfState{#2}};
+  \draw (RR|-here) node[state, label=left:$R_{\inputidx}$] (RRhere) {\SimeckHalfState{#3}};
+  \draw (L|-here) ++(0,-\wordvsep) coordinate[tee] (t)
+                  ++(0,-.3)        coordinate      (swapini)
+                  ++(0,-\wordvsep) coordinate      (swapfin)
+                  ++(0,-.3)        coordinate      (here)
+                  ++(0,.5*\bitdim) coordinate      (end);
+  \draw (R|-t)                     coordinate[xor] (x);
+  \draw[->] (t) -- node[fill=white,draw,rounded corners=2pt] {$F_K$} (x); % TODO put desired name of round function here
+  \begin{scope}[rounded corners=2pt,->]
+    \draw[\ifsimeckcompact-\fi] (Rhere|-RRhere.south) -- (x);
+    \draw (Lhere|-LLhere.south) -- (L|-swapini) -- (R|-swapfin) -- (R|-end) coordinate (Rhere);
+    \draw (x) -- (R|-swapini) -- (L|-swapfin) -- (L|-end) coordinate (Lhere);
+  \end{scope}
+}
+
+
+\newcommand{\SimeckFinal}[3]{
+    \pgfmathsetmacro{\inputidx}{int(#1-1)}
+  \draw (LL|-here) node[state,label=right:$L_{\inputidx}$] (LLhere) {\SimeckHalfState{#2}};
+  \draw (RR|-here) node[state, label=left:$R_{\inputidx}$] (RRhere) {\SimeckHalfState{#3}};
+}
+
+\endinput

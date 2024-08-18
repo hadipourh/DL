@@ -1,0 +1,239 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{twine}[2022/02/09 Utils for illustrating the twine block cipher]
+
+%%% PREREQUISITES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{amsmath,amsfonts,amssymb,xspace}
+\RequirePackage{etoolbox,ifthen}
+
+\RequirePackage{tikz}
+\usetikzlibrary{positioning,calc,cipher,backgrounds}
+\def\diffusiondepth{3}
+
+\colorlet{twinered}{red}
+\colorlet{twineblue}{blue}
+\colorlet{twineyellow}{yellow}
+\AtBeginDocument{\@ifpackageloaded{tugcolors}{
+  \colorlet{twinered}{tugred}
+  \colorlet{twineblue}{tugblue}
+  %\colorlet{twineblue}{mach}
+  \colorlet{twineyellow}{tuggreen}
+}{}}
+
+
+%%% GENERAL CRYPTO UTILS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\providecommand{\cipher}[1]{\textsf{#1}}
+
+%%% TWINE TIKZ STYLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\tikzset{twinefig/.style={twinescale,
+                         very thin,>=latex,
+                         every node/.style={font=\tiny,inner sep=1pt}},
+         twinescale/.style={twinescaleprint},
+         twinescaleprint/.style={xscale=.5,yscale=.4},
+         twinescalelncs/.style={xscale=.38,yscale=.38},
+         twinesbox/.style={box,minimum size=1pt,rounded corners=1pt},
+         markpath/.style={twineblue,thick},
+         markupperpath/.style={twinered, thick},
+         marklowerpath/.style={twineblue, thick},
+         markmidupperpath/.style={double=none, twinered, thin, double distance=.5pt},
+         markmidlowerpath/.style={double=none, twineblue, semithick},
+}
+
+%%% twine TIKZ MACROS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\twineround}[1]{%
+  \begin{tikzpicture}[twinefig]
+    \coordinate (ptop) at (0,-3);
+    \coordinate (pbot) at (0,-\diffusiondepth);
+    \foreach \z [evaluate=\z as \zz using int(2*\z), evaluate=\z as \zzz using int(2*\z+1)] in {0,...,7} {
+      \draw (\zz,0)   node[above] {$X_{\!\zz}$}   ++(-.25,0) coordinate (t\zz);
+      \draw (\zzz,0)  node[above] {$X_{\!\zzz}$}  ++( .25,0) coordinate (t\zzz);
+      \draw (\zz,{-\diffusiondepth - 0.6})  %node[below] {$X'_{\!\zz}$}
+                                                  ++(-.25,0) coordinate (b\zz);
+      \draw (\zzz,{-\diffusiondepth - 0.6}) %node[below] {$X'_{\!\zzz}$}
+                                                  ++( .25,0) coordinate (b\zzz);
+      \node[twinesbox] (s\z) at (\z*2+.5,-1) {$S$};
+      \coordinate[tee, scale=0.5]               (tee\zz)  at (s\z-|t\zz) ;
+      \coordinate[xor, scale=0.5]               (xor\z)   at (s\z-|t\zzz) ;
+      \coordinate[xor, scale=0.5, yshift=-.75cm] (tee\zzz) at (xor\z);
+      \node (rk\z) at (s\z|-tee\zzz) {$K_{\z}^b$\!\!\null};
+      \draw[-]  (s\z) -- (xor\z);
+      \draw[->] (t\zz) |- (s\z);
+      \draw[->] (t\zzz) -- (xor\z);
+      \draw[->] (xor\z) -- (tee\zzz);
+      \draw[-]  (rk\z) -- (tee\zzz);
+    }
+    \foreach \z [evaluate=\z as \zzz using int(2*\z+1)] in {0,1} {
+      \coordinate[xor, scale=0.5, yshift=-.5cm] (tec\zzz) at (tee\zzz);
+      \node (rc\z) at (s\z|-tec\zzz) {$\text{rc}_{\z}$\!\!\null};
+      \draw[-] (rc\z) -- (tec\zzz);
+    }
+    \foreach \z/\pz in {0/5, 1/0, 2/1, 3/4, 4/7, 5/12, 6/3, 7/8, 8/13, 9/6, 10/9, 11/2, 12/15, 13/10, 14/11, 15/14} {
+      \draw[->,rounded corners=2pt] (tee\z) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+    }
+    #1
+  \end{tikzpicture}%
+}
+
+\newcommand{\twineroundwokey}[1]{%
+	\begin{tikzpicture}[twinefig]
+	\coordinate (ptop) at (0,-2);
+	\coordinate (pbot) at (0,-\diffusiondepth);
+	\foreach \z [evaluate=\z as \zz using int(2*\z), evaluate=\z as \zzz using int(2*\z+1)] in {0,...,7} {
+		\draw (\zz,0)   node[above] {$X_{\!\zz}$} ++(-.25, 0) coordinate (t\zz);
+		\draw (\zzz,0)  node[above] {$X_{\!\zzz}$}  ++(.25,0) coordinate (t\zzz);
+		\draw (\zz,{-\diffusiondepth - 0.6})  %node[below] {$X'_{\!\zz}$}
+		++(-.25,0) coordinate (b\zz);
+		\draw (\zzz,{-\diffusiondepth - 0.6}) %node[below] {$X'_{\!\zzz}$}
+		++( .25,0) coordinate (b\zzz);
+		\node[twinesbox] (s\z) at (\z*2+.5,-1) {$S$};
+		\coordinate[tee, scale=0.5]               (tee\zz)  at (s\z-|t\zz);
+		\coordinate[xor, scale=0.5]               (xor\z)   at (s\z-|t\zzz);
+		\coordinate[] (tee\zzz) at (xor\z);
+		\draw[-]  (s\z) -- (xor\z);
+		\draw[->] (t\zz) |- (s\z);
+		\draw[-] (t\zzz) -- (xor\z);
+	}
+	\foreach \z/\pz in {0/5, 1/0, 2/1, 3/4, 4/7, 5/12, 6/3, 7/8, 8/13, 9/6, 10/9, 11/2, 12/15, 13/10, 14/11, 15/14} {
+		\draw[-,rounded corners=2pt] (tee\z) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+	}
+	#1
+	\end{tikzpicture}%
+}
+
+\newcommand{\twineroundfinal}[1]{%
+  \begin{tikzpicture}[twinefig]
+    \coordinate (ptop) at (0,-3);
+    \coordinate (pbot) at (0,-3);
+    \foreach \z [evaluate=\z as \zz using int(2*\z), evaluate=\z as \zzz using int(2*\z+1)] in {0,...,15} {
+      \draw (\zz,0)   node[above] {$X_{\!\zz}$}   ++(-.25,0) coordinate (t\zz);
+      \draw (\zzz,0)  node[above] {$X_{\!\zzz}$}  ++( .25,0) coordinate (t\zzz);
+      \draw (\zz,-3)  node[below] {$X'_{\!\zz}$}  ++(-.25,0) coordinate (b\zz);
+      \draw (\zzz,-3) node[below] {$X'_{\!\zzz}$} ++( .25,0) coordinate (b\zzz);
+      \node[twinesbox] (s\z) at (\z*2+.5,-1) {$S$};
+      \coordinate[tee, scale=0.5]               (tee\zz)  at (s\z-|t\zz) ;
+      \coordinate[xor, scale=0.5]               (xor\z)   at (s\z-|t\zzz) ;
+      \coordinate[xor, scale=0.5, yshift=-.75cm] (tee\zzz) at (xor\z);
+      \node (rk\z) at (s\z|-tee\zzz) {$K_{\z}^b$\!\!\null};
+      \draw[-]  (s\z) -- (xor\z);
+      \draw[->] (t\zz) |- (s\z);
+      \draw[->] (t\zzz) -- (xor\z);
+      \draw[->] (xor\z) -- (tee\zzz);
+      \draw[-]  (rk\z) -- (tee\zzz);
+    }
+    \foreach \z [evaluate=\z as \zzz using int(2*\z+1)] in {0,1} {
+      \coordinate[xor, scale=0.5, yshift=-.5cm] (tec\zzz) at (tee\zzz);
+      \node (rc\z) at (s\z|-tec\zzz) {$\text{rc}_{\z}$\!\!\null};
+      \draw[-] (rc\z) -- (tec\zzz);
+    }
+    \foreach \z/\pz in {0/5, 1/0, 2/1, 3/4, 4/7, 5/12, 6/3, 7/8, 8/13, 9/6, 10/9, 11/2, 12/15, 13/10, 14/11, 15/14} {
+      \draw[->,rounded corners=2pt] (tee\z) -- (b\z);
+    }
+    #1
+  \end{tikzpicture}
+}
+
+\newcommand{\markbranches}[1]{%
+  \foreach \z/\pz in {#1} {
+    \draw[markpath,->,rounded corners=2pt] (t\z) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+    \node[markpath,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+  }
+}
+
+\newcommand{\marksboxes}[1]{%
+  \foreach \s/\z/\pz in {#1} {
+    \draw[markpath] (s\s) -- (xor\s);
+    \node[markpath,twinesbox] at (s\s) {$S$};
+    \draw[markpath,->,rounded corners=2pt] (s\s) -- (tee\z) coordinate[tee, scale=.5] -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+    \node[markpath,circle,draw,draw opacity=.5] at (rk\s) {$K_{\s}^b$\!\!\null};
+    \draw[markpath] (xor\s)       coordinate[xor,scale=0.5];
+    \draw[markpath] (xor\s|-rk\s) coordinate[xor,scale=0.5] -- (rk\s);
+  }
+}
+
+\newcommand{\markoutputs}[1]{%
+  \foreach \z in {#1} {
+    \node[markpath,fill,fill opacity=.2,below] at (\z,{-\diffusiondepth - 0.6}) {\phantom{$X'_{\!00}$}};
+  }
+}
+
+\newcommand{\markoutputdiff}[1]{%
+	\foreach \z in {#1} {
+		\node[twineblue,fill,fill opacity=.2, below] at (\z,{-\diffusiondepth - 0.6}) {\phantom{$X_{\!00}$}};
+	}
+    \foreach \z in {0, ..., 15} {
+    	\draw (\z,{-\diffusiondepth - 0.6}) node[below] {$X_{\!\z}$};
+    }
+}
+
+\newcommand{\markcommonactivesboxes}[1]{%
+  \begin{scope}[on background layer]
+    \foreach \z in {#1} {
+      \filldraw[twineyellow, very thick, fill opacity=.5] (s\z) circle (0.5cm);
+    }
+  \end{scope}
+}
+\newcommand{\markuppercrossingdifferences}[1]{%
+	\foreach \z in {#1} {
+		\node[twinered, thick,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+	}
+}
+
+\newcommand{\markevenbranches}[3]{%
+	%1: branch number (should be even)
+	%2: markupperpath or marklowerpath
+	%3: -> or <-
+	\foreach \z/\pz [evaluate=\z as \s using int(\z/2)] in {#1} {
+		\draw[#2,#3,rounded corners=2pt] (t\z) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+		\node[#2,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+		\node[#2,twinesbox] at (s\s) {$S$};
+		%\coordinate[tee, scale=0.5]               (tee\zz)  at (s\z-|t\z);
+		\draw[#2, ->] (tee\z) -- (s\s);
+		\draw[#2] (s\s) -- (xor\s);
+		%\draw[#2] (xor\s)       coordinate[xor,scale=0.5];
+	}
+}
+
+\newcommand{\markoddbranchbeforexor}[2]{%
+	\foreach \z [evaluate=\z as \zz using int(\z/2)] in {#1} {
+		\draw[#2] (t\z) -- (xor\zz);
+		\node[#2,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+	}
+}
+
+\newcommand{\markoddbranchafterxor}[3]{%
+	\foreach \z/\pz [evaluate=\z as \zz using int(\z/2)] in {#1} {
+		\draw[#2,#3,rounded corners=2pt] (xor\zz) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+		%\node[#2,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+	}
+}
+
+\newcommand{\markoddbranch}[3]{%
+	%1: branch number (should be odd)
+	%2: markupperpath or marklowerpath
+	%3: -> or <-
+	\foreach \z/\pz [evaluate=\z as \s using int((\z - 1)/2)] in {#1} {
+		\draw[#2,#3,rounded corners=2pt] (t\z) -- (xor\s) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+		\node[#2,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+		\node[#2,twinesbox] at (s\s) {$S$};
+		\draw[#2] (tee\the\numexpr\z-1\relax) -- (s\s) -- (xor\s);
+		\draw[#2] (xor\s)       coordinate[xor,scale=0.5];
+	}
+}
+
+\newcommand{\markevenbranchaftertee}[3]{%
+	\foreach \z/\pz in {#1} {
+		\draw[#2,#3,rounded corners=2pt] (tee\z) -- (tee\z|-ptop) -- (b\pz|-pbot) -- (b\pz);
+		%\node[#2,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+	}
+}
+
+\newcommand{\markevenbranchbeforetee}[3]{%
+	\foreach \z in {#1} {
+		\draw[#2,#3,rounded corners=2pt] (t\z) -- (tee\z);
+		\node[#2,fill,fill opacity=.2,above] at (\z,0) {\phantom{$X_{\!00}$}};
+	}
+}

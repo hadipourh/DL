@@ -1,0 +1,11 @@
+# ./espresso -Dexact -estrong -s -t -or bftt.txt
+# UC Berkeley, Espresso Version #2.3, Release date 01/31/88
+# READ       	Time was 0.01 sec, cost is c=32130(32130) in=514080 out=32130 tot=546210
+# COMPL      	Time was 0.71 sec, cost is c=15326(3922) in=214065 out=15326 tot=229391
+# PLA is bftt.txt with 16 inputs and 1 outputs
+# ON-set cost is  c=32130(32130) in=514080 out=32130 tot=546210
+# OFF-set cost is c=15326(3922) in=214065 out=15326 tot=229391
+# DC-set cost is  c=0(0) in=0 out=0 tot=0
+# PRIMES     	Time was 19.26 sec, cost is c=67459(67459) in=932847 out=67459 tot=1000306
+# ESSENTIALS 	Time was 9.13 sec, cost is c=61(61) in=857 out=61 tot=918
+# PI-TABLE   	Time was 35.51 sec, cost is c=67398(67398) in=931990 out=67398 tot=999388

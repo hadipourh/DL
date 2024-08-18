@@ -1,0 +1,7 @@
+blocksize = 32;
+RU = 0;
+RM = 5;
+RL = 0;
+RMU = 1;
+RML = 1;
+

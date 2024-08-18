@@ -1,0 +1,12 @@
+# Example input file for diff
+---
+nrounds: 1
+mode: 0
+sweight: 0
+endweight: 128
+timelimit: 3600
+numberoftrails: 2
+fixedVariables:
+
+# - x_0 : "0x0000700700000000"
+- x_1 : "0x0000009000000000"

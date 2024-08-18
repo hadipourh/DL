@@ -1,0 +1,27 @@
+# Example input file for diff
+---
+nrounds: 2
+mode: 0
+sweight: 0
+endweight: 128
+timelimit: 18000
+numberoftrails: 100
+fixedVariables:
+
+- x_0 : "00000b0000000000"
+# Some examples showing how to set the I/O differences
+## Pr = 2^(-6.00)
+# - x_0 : "4000000000004000"
+# - x_4 : "0000440000000004"
+
+## Pr = 2^(-21.999999999999968)
+# - x_0 : "00024010ca010506"
+# - x_8 : "0004101000001500"
+
+# - x_0 : "2040000000001460"
+# - x_4 : "0000004000000000"
+
+# Some samples showing how to set nibbles or bits
+# - x_9_0 : "a"
+# - x_9_1 : "b"
+# - x_9_2_0 : "0"
