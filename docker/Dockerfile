@@ -22,11 +22,12 @@ RUN apt-get update && \
 
 # Install MiniZinc
 WORKDIR /home 
-RUN wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.8.5/MiniZincIDE-2.8.5-bundle-linux-x86_64.tgz && \
-    tar -xvzf MiniZincIDE-2.8.5-bundle-linux-x86_64.tgz && \
-    mv MiniZincIDE-2.8.5-bundle-linux-x86_64 minizinc && \
-    rm MiniZincIDE-2.8.5-bundle-linux-x86_64.tgz && \
-    ln -s /home/minizinc/bin/minizinc /usr/local/bin/minizinc
+RUN LATEST_MINIZINC_VERSION=$(curl -s https://api.github.com/repos/MiniZinc/MiniZincIDE/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') \
+    && wget "https://github.com/MiniZinc/MiniZincIDE/releases/download/$LATEST_MINIZINC_VERSION/MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz" \
+    && mkdir MiniZinc \
+    && tar -xvzf "MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz" -C MiniZinc --strip-components=1 \
+    && rm "MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz"
+RUN ln -s /home/MiniZinc/bin/minizinc /usr/local/bin/minizinc
 
 # Clone DL repository
 RUN git clone https://github.com/hadipourh/DL
