@@ -27,7 +27,7 @@ SOFTWARE.
 Disclaimer: We acknowledge that the WARP block cipher doesn't adhere to statistical assumptions 
 in differential analysis, such as the random sub-key assumption
 or Markov cipher assumption. The tool's primary function is to find some bounds
-for the security of TWINE against differential and differential-linear cryptanalysis.
+for the security of WARP against differential, linear, and differential-linear cryptanalysis.
 """
 
 from argparse import ArgumentParser, RawTextHelpFormatter
