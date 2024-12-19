@@ -353,7 +353,7 @@ class Diff:
             characteristic[f"x_{r}"] = x_value
         for r in range(self.nrounds):
             round_probability = 0
-            for nibble in range(8):
+            for nibble in range(16):
                 round_probability += sum([int(self.milp_model.getVarByName(f"pr_{r}_{nibble}_{bit}").Xn) for bit in range(2)])
             characteristic[f"pr_{r}"] = f"-{round_probability}"
         characteristic["total_weight"] = "%0.02f" % self.total_weight
