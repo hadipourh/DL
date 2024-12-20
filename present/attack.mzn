@@ -260,7 +260,7 @@ var 0..64: QML;
 constraint PU = sum(r in 0..(RU - 1), i in 0..15)(3*pu[r, i, 0] + 2*pu[r, i, 1]);
 constraint PMU = sum(r in 0..(RM - 1), i in 0..15)(3*pmu[r, i, 0] + 2*pmu[r, i, 1]);
 constraint QL = sum(r in 0..(RL - 1), i in 0..15)(4*pl[r, i, 0] + 2*pl[r, i, 1]);
-constraint QML = sum(r in 0..(RL - 1), i in 0..15)(4*pml[r, i, 0] + 2*pml[r, i, 1]);
+constraint QML = sum(r in 0..(RM - 1), i in 0..15)(4*pml[r, i, 0] + 2*pml[r, i, 1]);
 constraint CMB = 1*sum(r in 0..(RM - 1), i in 0..63)(
                 bool2int(ymu[r, i] = -1 /\ yml[r, i] = -1))
                 +
