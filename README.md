@@ -2,7 +2,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/conference-CRYPTO%202024-purple.svg" alt="CRYPTO 2024">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/python-3.8%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker">
   <img src="https://img.shields.io/badge/sagemath-partially%20required-green.svg" alt="SageMath">
   <img src="https://img.shields.io/badge/gurobi-partially%20required-red.svg" alt="Gurobi">
