@@ -1,49 +1,58 @@
 # Revisiting Differential-Linear Attacks via a Boomerang Perspective 
+<p align="center">
+  <img src="https://img.shields.io/badge/conference-CRYPTO%202024-purple.svg" alt="CRYPTO 2024">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
+  <img src="https://img.shields.io/badge/python-3.8%2B-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker">
+  <img src="https://img.shields.io/badge/sagemath-partially%20required-green.svg" alt="SageMath">
+  <img src="https://img.shields.io/badge/gurobi-partially%20required-red.svg" alt="Gurobi">
+  <img src="https://img.shields.io/badge/minizinc-partially%20required-orange.svg" alt="MiniZinc">  
+</p>
 
-This repository contains the source code for the tools utilized in our paper accepted to [CRYPTO 2024](https://crypto.iacr.org/2024/) titled as:
-[Revisiting Differential-Linear Attacks via a Boomerang Perspective with Application to AES, Ascon, CLEFIA, SKINNY, PRESENT, KNOT, TWINE, WARP, LBlock, Simeck, and SERPENT](https://ia.cr/2024/255)
+This repository hosts the source code for the tools presented in our paper, accepted at [CRYPTO 2024](https://crypto.iacr.org/2024/), titled:  
+[**Revisiting Differential-Linear Attacks via a Boomerang Perspective with Application to AES, Ascon, CLEFIA, SKINNY, PRESENT, KNOT, TWINE, WARP, LBlock, Simeck, and SERPENT**](https://ia.cr/2024/255).
 
 ## Table of Contents
-- [Revisiting Differential-Linear Attacks via a Boomerang Perspective](#revisiting-differential-linear-attacks-via-a-boomerang-perspective)
-  - [Table of Contents](#table-of-contents)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-    - [Method 1](#method-1)
-    - [Method 2](#method-2)
-  - [Structure of Our Tool](#structure-of-our-tool)
-  - [Usage](#usage)
-    - [Example 1: TWINE](#example-1-twine)
-    - [Example 2: WARP](#example-2-warp)
-    - [Example 3: AES](#example-3-aes)
-    - [Example 4: Ascon](#example-4-ascon)
-  - [Analythical Estimations](#analythical-estimations)
-    - [Example 1: 8 Rounds of TWINE (Basic)](#example-1-8-rounds-of-twine-basic)
-    - [Example 2: 3 Rounds of AES (Medium)](#example-2-3-rounds-of-aes-medium)
-    - [Example 3: 9 Rounds of TWINE (Medium)](#example-3-9-rounds-of-twine-medium)
-    - [Example 4: 10 Rounds of TWINE (Complex)](#example-4-10-rounds-of-twine-complex)
-  - [Experimental Verification](#experimental-verification)
-    - [Example 1: AES](#example-1-aes)
-    - [Example 2: TWINE](#example-2-twine)
-    - [Example 3: Ascon](#example-3-ascon)
-    - [Example 4: WARP](#example-4-warp)
-  - [Encoding S-boxes and Other Building Block Functions](#encoding-s-boxes-and-other-building-block-functions)
-  - [Verifying Proposition 2](#verifying-proposition-2)
-  - [References](#references)
-  - [Citation](#citation)
-  - [License ](#license-)
 
-## Requirements
+- [Required Software](#required-software)
+- [Installation](#installation)
+  - [Method 1](#method-1)
+  - [Method 2](#method-2)
+- [Structure of Our Tool](#structure-of-our-tool)
+- [Usage](#usage)
+  - [Example 1: TWINE](#example-1-twine)
+  - [Example 2: WARP](#example-2-warp)
+  - [Example 3: AES](#example-3-aes)
+  - [Example 4: Ascon](#example-4-ascon)
+- [Analytical Estimations](#analytical-estimations)
+  - [Example 1: 8 Rounds of TWINE (Basic)](#example-1-8-rounds-of-twine-basic)
+  - [Example 2: 3 Rounds of AES (Medium)](#example-2-3-rounds-of-aes-medium)
+  - [Example 3: 9 Rounds of TWINE (Medium)](#example-3-9-rounds-of-twine-medium)
+  - [Example 4: 10 Rounds of TWINE (Complex)](#example-4-10-rounds-of-twine-complex)
+- [Experimental Verification](#experimental-verification)
+  - [Example 1: AES](#example-1-aes)
+  - [Example 2: TWINE](#example-2-twine)
+  - [Example 3: Ascon](#example-3-ascon)
+  - [Example 4: WARP](#example-4-warp)
+- [Encoding S-boxes and Other Building Block Functions](#encoding-s-boxes-and-other-building-block-functions)
+- [Verifying Proposition 2](#verifying-proposition-2)
+- [References](#references)
+- [Citation](#citation)
+- [License](#license)
 
-Our tool requires the following software:
+## Required Software
 
-- [MiniZinc](https://www.minizinc.org/) to compile and solve our CP models.
-- [latexmk](https://www.latex-project.org/) to build the `.tex` file and generate the shapes of our attacks (can be replaced by just calling lualatex directly).
-- [Or-Tools](https://developers.google.com/optimization)
- to solve our CP/MILP models.
-- [Gurobi](https://www.gurobi.com/downloads/gurobi-software/) to solve our CP/MILP models. 
-- [SageMath](https://www.sagemath.org/) to run our analytical formulas.
+To use our tool effectively, ensure the following software is installed:
 
-Our tool for identifying distinguishers relies exclusively on MiniZinc, Or-Tools, and Gurobi. It is worth noting that SageMath is necessary only for executing the analytical estimations.
+- [**MiniZinc**](https://www.minizinc.org/): Used to compile and solve CP models.
+- [**latexmk**](https://www.latex-project.org/): Builds `.tex` files and generates visualizations of attack shapes (alternatively, you can directly use `lualatex`).
+- [**Or-Tools**](https://developers.google.com/optimization): Solves CP/MILP models.
+- [**Gurobi**](https://www.gurobi.com/downloads/gurobi-software/): Solves CP/MILP models (requires a license).
+- [**SageMath**](https://www.sagemath.org/): Executes analytical formulas.
+
+**Note:**  
+- The identification of distinguishers relies solely on MiniZinc, Or-Tools, and Gurobi.  
+- SageMath is required only for running analytical estimations.
 
 ## Installation
 
@@ -75,45 +84,72 @@ Additionally, we need the Python package named `minizinc` to work with MiniZinc 
 To install MiniZinc and required Python packages in Ubuntu, one can use the following commands:
 
 ```bash
-apt update
-apt upgrade
-apt install python3-full
-apt install git
-apt install wget
-cd /home 
+#!/bin/bash
+
+# Update and upgrade system packages
+sudo apt update -y
+sudo apt upgrade -y
+
+# Install system dependencies
+sudo apt install -y python3-full python3-pip python3-venv git wget curl
+
+# Create a working directory
+mkdir -p "$HOME/minizinc_install"
+cd "$HOME/minizinc_install"
+
+# Download and extract the latest MiniZinc release
 LATEST_MINIZINC_VERSION=$(curl -s https://api.github.com/repos/MiniZinc/MiniZincIDE/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
 wget "https://github.com/MiniZinc/MiniZincIDE/releases/download/$LATEST_MINIZINC_VERSION/MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz"
 tar -xvzf MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz
-mv MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64 minizinc
+mv MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64 "$HOME/minizinc"
 rm MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz
-ln -s  /home/minizinc/bin/minizinc /usr/local/bin/minizinc
-apt install python3-pip
-python3 -m pip install minizinc
-python3 -m pip install sagemath
+
+# Add MiniZinc to system PATH
+sudo ln -sf "$HOME/minizinc/bin/minizinc" /usr/local/bin/minizinc
+
+# Create a Python virtual environment
+python3 -m venv "$HOME/minizinc_venv"
+source "$HOME/minizinc_venv/bin/activate"
+
+# Install Python packages
+pip install --upgrade pip
+pip install minizinc
+pip install sagemath  # Note: this is not the full SageMath system
+```
+### Installing Gurobi and `gurobipy`
+
+To solve CP models using Gurobi, you need to install its Python interface, `gurobipy`. You can do this by running the following command:
+
+```bash
+python3 -m pip install gurobipy
 ```
 
-Sometimes, we use Gurobi to solve our CP models. 
-The Python interface of Gurobi, namely `gurobipy`, can be installed by running `python3 -m pip install gurobipy`. 
-To install Gurobi, and its academic license, one can follow the instructions provided [here](https://www.gurobi.com/documentation/9.1/quickstart_linux/software_installation_guid.html).
+For detailed instructions on installing Gurobi and obtaining an academic license, refer to the [GrabGurobi repository](https://github.com/hadipourh/grabgurobi).
 
 ## Structure of Our Tool
+We have developed our tools using a modular approach to ensure flexibility and maintainability. The workflow is divided into three main modules:
 
-We have developed our tools following a modular approach.  
-One module creates CP/MILP models, another calls the solver and processes results, and a third visualizes outcomes. 
-However, the core idea is to first generate a CP/MILP model for each application, then solve it using a CP/MILP solver. 
-We have employed two different approaches for model creation:
-- When employing Or-Tools as the solver, we created the CP model in `.mzn` format and utilized the Python interface of Or-Tools to solve and process the results.
-- When employing Gurobi as the solver, we utilize the Python interface to first create the MILP model in `.lp` format. Subsequently, we employ the Python interface of Gurobi to solve and process the results.
+1. **Model Creation**: Generates CP/MILP models tailored for each application.
+2. **Solver Integration**: Calls the solver, processes the results, and extracts meaningful insights.
+3. **Visualization**: Produces visual representations of the outcomes.
 
-The primary distinction lies in the fact that for `.mzn` files, we do not employ Python to create the CP model; instead, we directly write them in the MiniZinc language.
+The core idea is to first generate a CP/MILP model for a specific application and then solve it using a CP/MILP solver. We employ two distinct approaches for model creation based on the solver being used:
+
+- **Or-Tools Solver**:  
+  - The CP model is created in the `.mzn` format using the MiniZinc language.  
+  - The Python interface of Or-Tools is used to solve the model and process the results.
+
+- **Gurobi Solver**:  
+  - The MILP model is created in the `.lp` format using the Python interface.  
+  - The Python interface of Gurobi is then used to solve the model and process the results.
+
+The key difference between these approaches lies in the model creation process. For `.mzn` files, the CP model is directly written in the MiniZinc language without relying on Python for model generation.
 
 ## Usage
 
-Utilizing our tool is straightforward. 
-Simply specify the number of attacked rounds or the length of the distinguisher and select the solver. 
-Our tool will then identify the distinguisher and visualize its shape.
+Using our tool is simple and efficient. Specify the number of attacked rounds or the distinguisher's length, and choose the solver. The tool will automatically identify the distinguisher and generate a visualization of its shape.
 
-For a quick guide on each application, run the following command:
+For a quick reference on how to use the tool for each application, execute the following command:
 
 ```bash
 python3 <application_name>.py --help

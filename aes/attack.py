@@ -38,8 +38,6 @@ from lin import Lin
 import io
 from contextlib import redirect_stdout
 from draw import DrawDL
-import yaml
-
 
 class DiffLin:
     DL_counter = 0
@@ -59,11 +57,6 @@ class DiffLin:
         self.RML = param["RML"]
         self.RD = self.RU + self.RM + self.RL
         self.cp_solver_name = param["solver"]
-        ##################################################
-        # Use this block if you install Or-Tools bundeled with MiniZinc
-        #if self.cp_solver_name == "ortools":
-        #    self.cp_solver_name = "com.google.ortools.sat"
-        ################################################## 
         self.cp_solver = minizinc.Solver.lookup(self.cp_solver_name)   
         self.time_limit = param["timelimit"]
         self.num_of_threads = param["np"]
@@ -378,9 +371,11 @@ def main():
     
     parser.add_argument("-np", type=int, default=8, help="Number of parallel threads")
     parser.add_argument("-tl", "--timelimit", type=int, default=60, help="Time limit in seconds")
-    parser.add_argument("-sl", "--solver", default="gecode", type=str,
-                        choices=['gecode', 'chuffed', 'coin-bc', 'gurobi', 'picat', 'scip', 'choco', 'ortools', 'cplex', 'cbc'],
-                        help="choose a cp solver\n")    
+    # Fetch available solvers from MiniZinc
+    available_solvers = [solver_name for solver_name in minizinc.default_driver.available_solvers().keys()]
+    parser.add_argument("-sl", "--solver", default="cp-sat", type=str,
+                        choices=available_solvers,
+                        help="Choose a CP solver")  
     parser.add_argument("-o", "--output", default="output.tex", type=str, help="Output file name")
 
     # Parse command line arguments and construct parameter list
@@ -391,3 +386,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

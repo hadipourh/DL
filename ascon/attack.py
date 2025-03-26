@@ -38,7 +38,7 @@ import subprocess
 # Check if "OR Tools" appears in the output of "minizinc --solvers" command 
 try:
     output = subprocess.run(['minizinc', '--solvers'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if "com.google.ortools.sat" in output.stdout.decode("utf-8"):
+    if "cp-sat" in output.stdout.decode("utf-8"):
         ortools_available = True
         print("OR Tools is available")
     else:
@@ -63,11 +63,6 @@ class DiffLin:
         self.RML = param["RML"]
         self.RD = self.RU + self.RM + self.RL
         self.cp_solver_name = param["solver"]
-        ##################################################
-        if ortools_available:
-            if self.cp_solver_name == "ortools":
-                self.cp_solver_name = "com.google.ortools.sat"
-        #################################################
         self.cp_solver = minizinc.Solver.lookup(self.cp_solver_name)
         self.time_limit = param["timelimit"]
         self.num_of_threads = param["np"]
@@ -293,9 +288,11 @@ def main():
     parser.add_argument("-RML", type=int, default=0, help="Number of rounds passed probabilistically at the end of EM")
     parser.add_argument("-np", type=int, default=8, help="Number of parallel threads")
     parser.add_argument("-tl", "--timelimit", type=int, default=36000, help="Time limit in seconds")
-    parser.add_argument("-sl", "--solver", default="ortools", type=str,
-                        choices=['gecode', 'chuffed', 'coin-bc', 'gurobi', 'picat', 'scip', 'choco', 'ortools', 'cplex', 'cbc'],
-                        help="choose a cp solver\n")    
+    # Fetch available solvers from MiniZinc
+    available_solvers = [solver_name for solver_name in minizinc.default_driver.available_solvers().keys()]
+    parser.add_argument("-sl", "--solver", default="cp-sat", type=str,
+                        choices=available_solvers,
+                        help="Choose a CP solver")    
     parser.add_argument("-o", "--output", default="output.tex", type=str, help="Output file name")
 
     # Parse command line arguments and construct parameter list
