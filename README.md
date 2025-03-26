@@ -101,12 +101,15 @@ tar -xvzf MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz
 mv MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64 "$HOME/minizinc"
 rm MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz
 
+# Clean up the created folders
+rm -rf "$HOME/minizinc_install"
+
 # Add MiniZinc to system PATH
 sudo ln -sf "$HOME/minizinc/bin/minizinc" /usr/local/bin/minizinc
 
 # Create a Python virtual environment
-python3 -m venv "$HOME/minizinc_venv"
-source "$HOME/minizinc_venv/bin/activate"
+python3 -m venv "$HOME/dlvenv"
+source "$HOME/dlvenv/bin/activate"
 
 # Install Python packages
 pip install --upgrade pip
