@@ -1,12 +1,10 @@
 # Revisiting Differential-Linear Attacks via a Boomerang Perspective 
-<p align="center">
-  <img src="https://img.shields.io/badge/conference-CRYPTO%202024-purple.svg" alt="CRYPTO 2024">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker">
-  <img src="https://img.shields.io/badge/sagemath-partially%20required-green.svg" alt="SageMath">
-  <img src="https://img.shields.io/badge/gurobi-partially%20required-red.svg" alt="Gurobi">
-  <img src="https://img.shields.io/badge/minizinc-partially%20required-orange.svg" alt="MiniZinc">  
-</p>
+[![Conference](https://img.shields.io/badge/conference-CRYPTO%202024-purple.svg)](https://crypto.iacr.org/2024/) 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) 
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](docker) 
+[![SageMath](https://img.shields.io/badge/sagemath-partially%20required-green.svg)](https://www.sagemath.org/)
+[![Gurobi](https://img.shields.io/badge/gurobi-partially%20required-red.svg)](https://www.gurobi.com/) 
+[![MiniZinc](https://img.shields.io/badge/minizinc-partially%20required-orange.svg)](https://www.minizinc.org/) 
 
 This repository hosts the source code for the tools presented in our paper, accepted at [CRYPTO 2024](https://crypto.iacr.org/2024/), titled:  
 [**Revisiting Differential-Linear Attacks via a Boomerang Perspective with Application to AES, Ascon, CLEFIA, SKINNY, PRESENT, KNOT, TWINE, WARP, LBlock, Simeck, and SERPENT**](https://ia.cr/2024/255).

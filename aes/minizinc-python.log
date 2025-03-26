@@ -1,0 +1,1 @@
+DEBUG:minizinc:CLIDriver:run -> command: "/usr/local/bin/minizinc --allow-multiple-assignments --solvers-json --json-stream"
