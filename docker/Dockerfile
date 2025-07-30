@@ -20,14 +20,19 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install MiniZinc
+# Install MiniZinc with proper library path handling
 WORKDIR /home 
-RUN LATEST_MINIZINC_VERSION=$(curl -s https://api.github.com/repos/MiniZinc/MiniZincIDE/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') \
-    && wget "https://github.com/MiniZinc/MiniZincIDE/releases/download/$LATEST_MINIZINC_VERSION/MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz" \
+RUN LATEST_MINIZINC_VERSION=$(curl -s https://api.github.com/repos/MiniZinc/MiniZincIDE/releases/latest \
+    | grep -oP '"tag_name": "\K[^"]+') \
+    && wget "https://github.com/MiniZinc/MiniZincIDE/releases/download/${LATEST_MINIZINC_VERSION}/MiniZincIDE-${LATEST_MINIZINC_VERSION}-bundle-linux-x86_64.tgz" \
     && mkdir MiniZinc \
-    && tar -xvzf "MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz" -C MiniZinc --strip-components=1 \
-    && rm "MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz"
-RUN ln -s /home/MiniZinc/bin/minizinc /usr/local/bin/minizinc
+    && tar -xzf "MiniZincIDE-${LATEST_MINIZINC_VERSION}-bundle-linux-x86_64.tgz" -C MiniZinc --strip-components=1 \
+    && rm "MiniZincIDE-${LATEST_MINIZINC_VERSION}-bundle-linux-x86_64.tgz"
+
+# Create wrapper to set correct LD_LIBRARY_PATH at runtime
+RUN echo '#!/bin/bash\nLD_LIBRARY_PATH=/home/MiniZinc/lib:$LD_LIBRARY_PATH exec /home/MiniZinc/bin/minizinc "$@"' \
+    > /usr/local/bin/minizinc \
+    && chmod +x /usr/local/bin/minizinc
 
 # Clone DL repository
 RUN git clone https://github.com/hadipourh/DL
@@ -41,5 +46,9 @@ RUN python3 -m venv myenv
 # Install required Python packages
 RUN myenv/bin/python3 -m pip install --no-cache-dir pyyaml minizinc gurobipy numpy
 
-# Clean up APT cache
+# Set the entrypoint to the virtual environment's Python interpreter
+ENTRYPOINT ["/bin/bash", "-c", "source /home/DL/myenv/bin/activate && exec /bin/bash"]
+# Set the working directory for the container
+WORKDIR /home/DL
+# Clean up cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*

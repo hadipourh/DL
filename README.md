@@ -11,31 +11,34 @@ This repository hosts the source code for the tools presented in our paper, acce
 
 ## Table of Contents
 
-- [Required Software](#required-software)
-- [Installation](#installation)
-  - [Method 1](#method-1)
-  - [Method 2](#method-2)
-- [Structure of Our Tool](#structure-of-our-tool)
-- [Usage](#usage)
-  - [Example 1: TWINE](#example-1-twine)
-  - [Example 2: WARP](#example-2-warp)
-  - [Example 3: AES](#example-3-aes)
-  - [Example 4: Ascon](#example-4-ascon)
-- [Analytical Estimations](#analytical-estimations)
-  - [Example 1: 8 Rounds of TWINE (Basic)](#example-1-8-rounds-of-twine-basic)
-  - [Example 2: 3 Rounds of AES (Medium)](#example-2-3-rounds-of-aes-medium)
-  - [Example 3: 9 Rounds of TWINE (Medium)](#example-3-9-rounds-of-twine-medium)
-  - [Example 4: 10 Rounds of TWINE (Complex)](#example-4-10-rounds-of-twine-complex)
-- [Experimental Verification](#experimental-verification)
-  - [Example 1: AES](#example-1-aes)
-  - [Example 2: TWINE](#example-2-twine)
-  - [Example 3: Ascon](#example-3-ascon)
-  - [Example 4: WARP](#example-4-warp)
-- [Encoding S-boxes and Other Building Block Functions](#encoding-s-boxes-and-other-building-block-functions)
-- [Verifying Proposition 2](#verifying-proposition-2)
-- [References](#references)
-- [Citation](#citation)
-- [License](#license)
+- [Revisiting Differential-Linear Attacks via a Boomerang Perspective](#revisiting-differential-linear-attacks-via-a-boomerang-perspective)
+  - [Table of Contents](#table-of-contents)
+  - [Required Software](#required-software)
+  - [Installation](#installation)
+    - [Method 1](#method-1)
+    - [Method 2](#method-2)
+    - [Installing Gurobi and `gurobipy`](#installing-gurobi-and-gurobipy)
+  - [Structure of Our Tool](#structure-of-our-tool)
+  - [Usage](#usage)
+    - [Example 1: TWINE](#example-1-twine)
+    - [Example 2: WARP](#example-2-warp)
+    - [Example 3: AES](#example-3-aes)
+    - [Example 4: Ascon](#example-4-ascon)
+  - [Analythical Estimations](#analythical-estimations)
+    - [Example 1: 8 Rounds of TWINE (Basic)](#example-1-8-rounds-of-twine-basic)
+    - [Example 2: 3 Rounds of AES (Medium)](#example-2-3-rounds-of-aes-medium)
+    - [Example 3: 9 Rounds of TWINE (Medium)](#example-3-9-rounds-of-twine-medium)
+    - [Example 4: 10 Rounds of TWINE (Complex)](#example-4-10-rounds-of-twine-complex)
+  - [Experimental Verification](#experimental-verification)
+    - [Example 1: AES](#example-1-aes)
+    - [Example 2: TWINE](#example-2-twine)
+    - [Example 3: Ascon](#example-3-ascon)
+    - [Example 4: WARP](#example-4-warp)
+  - [Encoding S-boxes and Other Building Block Functions](#encoding-s-boxes-and-other-building-block-functions)
+  - [Verifying Proposition 2](#verifying-proposition-2)
+  - [References](#references)
+  - [Citation](#citation)
+  - [License ](#license-)
 
 ## Required Software
 
@@ -82,30 +85,24 @@ To install MiniZinc and required Python packages in Ubuntu, one can use the foll
 
 ```bash
 #!/bin/bash
-
 # Update and upgrade system packages
-sudo apt update -y
-sudo apt upgrade -y
+apt update -y
+apt upgrade -y
 
 # Install system dependencies
-sudo apt install -y python3-full python3-pip python3-venv git wget curl
-
-# Create a working directory
-mkdir -p "$HOME/minizinc_install"
-cd "$HOME/minizinc_install"
+apt install -y python3-full python3-pip python3-venv git wget curl
 
 # Download and extract the latest MiniZinc release
 LATEST_MINIZINC_VERSION=$(curl -s https://api.github.com/repos/MiniZinc/MiniZincIDE/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-wget "https://github.com/MiniZinc/MiniZincIDE/releases/download/$LATEST_MINIZINC_VERSION/MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz"
-tar -xvzf MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz
-mv MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64 "$HOME/minizinc"
-rm MiniZincIDE-$LATEST_MINIZINC_VERSION-bundle-linux-x86_64.tgz
+wget "https://github.com/MiniZinc/MiniZincIDE/releases/download/${LATEST_MINIZINC_VERSION}/MiniZincIDE-${LATEST_MINIZINC_VERSION}-bundle-linux-x86_64.tgz"
+mkdir -p "$HOME/minizinc"
+tar -xvzf "MiniZincIDE-${LATEST_MINIZINC_VERSION}-bundle-linux-x86_64.tgz" -C "$HOME/minizinc" --strip-components=1
+rm "MiniZincIDE-${LATEST_MINIZINC_VERSION}-bundle-linux-x86_64.tgz"
 
-# Clean up the created folders
-rm -rf "$HOME/minizinc_install"
-
-# Add MiniZinc to system PATH
-sudo ln -sf "$HOME/minizinc/bin/minizinc" /usr/local/bin/minizinc
+# Create a wrapper script to call MiniZinc with proper LD_LIBRARY_PATH
+echo '#!/bin/bash' > /usr/local/bin/minizinc
+echo "exec env LD_LIBRARY_PATH=\$HOME/minizinc/lib:\$LD_LIBRARY_PATH \$HOME/minizinc/bin/minizinc \"\$@\"" >> /usr/local/bin/minizinc
+chmod +x /usr/local/bin/minizinc
 
 # Create a Python virtual environment
 python3 -m venv "$HOME/dlvenv"
@@ -125,6 +122,7 @@ python3 -m pip install gurobipy
 ```
 
 For detailed instructions on installing Gurobi and obtaining an academic license, refer to the [GrabGurobi repository](https://github.com/hadipourh/grabgurobi).
+The above commands are included in the [install.sh](install.sh) script, which can be executed to set up the environment.
 
 ## Structure of Our Tool
 We have developed our tools using a modular approach to ensure flexibility and maintainability. The workflow is divided into three main modules:
