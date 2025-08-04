@@ -1281,6 +1281,7 @@ True
 
 If you use our tool in your work, please acknowledge it by citing our paper:
 
+{% raw %}
 ```bibtex
 @inproceedings{difflin_hadipouretal_crypto_2024,
   author       = {Hosein Hadipour and Patrick Derbez and Maria Eichlseder},
@@ -1295,6 +1296,7 @@ If you use our tool in your work, please acknowledge it by citing our paper:
   eprint       = {2024/255}
 }
 ```
+{% endraw %}
 
 ## License ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 
