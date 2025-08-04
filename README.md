@@ -1281,25 +1281,19 @@ True
 
 If you use our tool in your work, please acknowledge it by citing our paper:
 
-```
-@article{difflin_hadipouretal_crypto_2024,
-  author       = {Hosein Hadipour and
-                  Patrick Derbez and
-                  Maria Eichlseder and},
+```bibtex
+@inproceedings{difflin_hadipouretal_crypto_2024,
+  author       = {Hosein Hadipour and Patrick Derbez and Maria Eichlseder},
   title        = {Revisiting Differential-Linear Attacks via a Boomerang Perspective with Application to {AES}, {Ascon}, {CLEFIA}, {SKINNY}, {PRESENT}, {KNOT}, {TWINE}, {WARP}, {LBlock}, {Simeck}, and {SERPENT}},
-  editor       = {Reyzin, Leonid and 
-                  Stebila, Douglas},
+  editor       = {Reyzin, Leonid and Stebila, Douglas},
   booktitle    = {{CRYPTO} 2024},
   series       = {LNCS},
   pages        = {38--72},
   publisher    = {Springer Nature Switzerland},
   year         = {2024},
   doi          = {10.1007/978-3-031-68385-5_2},
-  eprint       = {2024/255},
-  usera        = {CRYPTO},
-  userb        = {2024},
+  eprint       = {2024/255}
 }
-
 ```
 
 ## License ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
