@@ -1,0 +1,38 @@
+# Python caches and artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.env
+.env*/
+.venv/
+venv/
+ENV/
+
+# Testing / coverage
+dotenv*
+.coverage*
+htmlcov/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editor settings
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Project-specific generated data
+*.log
+*.tmp
+*.bak

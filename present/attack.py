@@ -68,12 +68,7 @@ class DiffLin:
         self.RMU = param["RMU"]
         self.RML = param["RML"]
         self.RD = self.RU + self.RM + self.RL
-        self.cp_solver_name = param["solver"]
-        ##################################################
-        if ortools_available:
-            if self.cp_solver_name == "ortools":
-                self.cp_solver_name = "com.google.ortools.sat"
-        #################################################       
+        self.cp_solver_name = param["solver"]    
         self.cp_solver = minizinc.Solver.lookup(self.cp_solver_name)
         self.time_limit = param["timelimit"]
         self.num_of_threads = param["np"]
@@ -119,8 +114,8 @@ class DiffLin:
         self.result = self.cp_inst.solve(timeout=time_limit, 
                                          processes=self.num_of_threads, 
                                          verbose=False, 
-                                         debug_output=Path("./debug_output.txt",
-                                         intermediate_solutions=True),
+                                        #  debug_output=Path("./debug_output.txt",
+                                        #  intermediate_solutions=True),
                                          random_seed=randint(0, 100),
                                          optimisation_level=2)
         #############################################################################################################################################
